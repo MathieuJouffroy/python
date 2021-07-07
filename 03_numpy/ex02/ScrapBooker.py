@@ -3,19 +3,30 @@ import time
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 
-class ScrapBooker():
+class ImageProcessor():
 	def load(self, path):
-		img = mpimg.imread(path) 
-		print (f"Loading image of dimensions {img.shape[0]} x {img.shape[1]}")
+		img = mpimg.imread(path)
+		print(f'Image Type: {type(img)}')
+		print(f"Image dtype: {img.dtype}")
+		print(f"Image nb bytes: {img.nbytes}")
+		print(f"Image strides: {img.strides}")
+		print(f"Image Shape: {img.shape}")
+		print(f"Image Height: {img.shape[0]} | Width: {img.shape[1]}")
+		print(f"Image Dimensions: {img.ndim}")
+		print(f"Image Size: {img.size}")
+		print(f"Max RGB Value: {img.max()}")
+		print(f"Min RGB Value: {img.min()}")
+		print(f"RGB values for pixel (100th rows, 50th column): {img[100, 50]}\n")
 		return (img)
-	
-	def display(self, img):
-		img_plot = plt.imshow(img)
-		return(img_plot)
 
+	def display(self, img):
+		plt.imshow(img)
+		plt.show()
+
+class ScrapBooker():
 	def crop(self, array: np.array, dimensions: tuple, position = (0, 0))-> np.array:# -> np.array:
 		if (dimensions[0] > array.shape[0] or dimensions[1] > array.shape[1]):
-			print (f"Error: Cannot crop with dimensions ({dimensions[0]} x {dimensions[1]}) highger than the image ({array.shape[0]} x {array.shape[1]})")
+			print (f"Error: Cannot crop with dimensions ({dimensions[0]} x {dimensions[1]}) bigger than the image ({array.shape[0]} x {array.shape[1]})")
 			exit ()
 		else:
 			cropped_arr = array[position[0]: position[0] + dimensions[0],
@@ -42,42 +53,41 @@ class ScrapBooker():
 ## for color image : 3D ndarray of tuple (row (height) x column (width) x color (3)).
 
 ### TESTS ###
+imp = ImageProcessor()
+arr = imp.load("../boin.jpg")
+imp.display(arr)
+plt.show()
 img = ScrapBooker()
-arr = img.load("../boin.jpg")
-img.display(arr)
-plt.show()
 
-print ("crop:")
-array = img.crop(arr, (1800, 1000), (900, 2510))
-print (array)
-plt.imshow(array)
-plt.suptitle('crop')
-plt.show()
-
-print ("thin:")
-array_1 = img.thin(arr, 1500, 1)
-print (array_1)
+start = time.time()
+array_1 = img.thin(arr, 1800, 1)
+end = time.time()
+print(f"thin: [ exec-time = {end - start:.7f} ms ]")
 plt.imshow(array_1)
 plt.suptitle('thin')
 plt.show()
 
-print ("juxtapose:")
 start = time.time()
-arr2 = img.juxtapose(arr, 4, 0)
+array = img.crop(arr, (1800, 1000), (900, 2510))
 end = time.time()
-print (arr2)
-print(f"[ exec-time = {end - start:.7f} ms ]")
-plt.imshow(arr2)
+print(f"crop: [ exec-time = {end - start:.7f} ms ]")
+plt.imshow(array)
+plt.suptitle('crop')
+plt.show()
+
+start = time.time()
+arr2 = img.juxtapose(array, 4, 1)
+end = time.time()
+print(f"juxtapose: [ exec-time = {end - start:.7f} ms ]")
+print (arr2.shape)
 plt.suptitle('juxtapose')
 plt.show()
 
-print ("mosaic:")
 start = time.time()
-arr1 = img.mosaic(arr, (3, 3, 1))
+arr1 = img.mosaic(array, (3, 3, 1))
 end = time.time()
-print (arr1.shape)
-print(f"[ exec-time = {end - start:.7f} ms ]")
-img.display(arr1)
+print(f"mosaic : [ exec-time = {end - start:.7f} ms ]")
+plt.imshow(arr1)
 plt.suptitle('mosaic')
 plt.show()
 
